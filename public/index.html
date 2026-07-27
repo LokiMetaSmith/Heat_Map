@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy-First Spatial App</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        #controls {
+            padding: 20px;
+            background: #f4f4f4;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input, button {
+            margin: 5px 0;
+            padding: 8px;
+        }
+        #map {
+            flex-grow: 1;
+            width: 100%;
+        }
+        .instruction {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="controls">
+        <div class="control-group">
+            <h3>Register Location</h3>
+            <form id="registerForm">
+                <input type="text" id="address" placeholder="Address (e.g. 123 Main St, City)" required><br>
+                <input type="email" id="email" placeholder="Your Email" required><br>
+                <label>Privacy Radius (meters):</label><br>
+                <input type="number" id="radius" value="3218" min="100" required> <!-- 2 miles approx --><br>
+                <button type="submit">Submit & Fuzz Location</button>
+            </form>
+        </div>
+
+        <div class="control-group">
+            <h3>Say Hello</h3>
+            <div class="instruction">1. Enter your email below.<br>2. Click anywhere on the map to find users within a radius.</div>
+            <input type="email" id="senderEmail" placeholder="Your Email (Sender)">
+            <label>Search Radius (meters):</label>
+            <input type="number" id="searchRadius" value="5000" min="100">
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Heatmap.js & Leaflet-heatmap plugin (loaded from unpkg for simplicity) -->
+    <script src="https://unpkg.com/heatmap.js@2.0.5/build/heatmap.min.js"></script>
+    <script src="https://unpkg.com/leaflet-heatmap@1.0.0/leaflet-heatmap.js"></script>
+
+    <script src="app.js"></script>
+</body>
+</html>
