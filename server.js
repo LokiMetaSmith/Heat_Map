@@ -25,8 +25,17 @@ const pool = new Pool({
 });
 
 // Nodemailer setup (Ethereal for local testing)
-let transporter;
+let transporter = nodemailer.createTransport({
+    streamTransport: true,
+    newline: 'windows'
+});
+
+app.set('transporter', transporter); // For testing
+
 async function initNodemailer() {
+    if (process.env.NODE_ENV === 'test') {
+        return;
+    }
     let testAccount = await nodemailer.createTestAccount();
     transporter = nodemailer.createTransport({
         host: "smtp.ethereal.email",
@@ -159,7 +168,8 @@ app.post('/api/connect', async (req, res) => {
             const connectionLink = `http://localhost:${process.env.PORT || 3000}/api/connect/${token}`;
 
             // Send email
-            let info = await transporter.sendMail({
+            let currentTransporter = process.env.NODE_ENV === 'test' ? app.get('transporter') : transporter;
+            let info = await currentTransporter.sendMail({
                 from: '"Privacy App" <noreply@privacyapp.com>',
                 to: recipientEmail,
                 subject: "Someone in your area wants to say hello!",
@@ -205,7 +215,8 @@ app.get('/api/connect/:token', async (req, res) => {
         const recipientEmail = decryptEmail(request.recipient_encrypted_email);
 
         // Send mutual exchange email
-        let info = await transporter.sendMail({
+        let currentTransporter = process.env.NODE_ENV === 'test' ? app.get('transporter') : transporter;
+        let info = await currentTransporter.sendMail({
             from: '"Privacy App" <noreply@privacyapp.com>',
             to: [senderEmail, recipientEmail], // Send to both
             subject: "You have a new mutual connection!",
@@ -227,7 +238,11 @@ app.get('/api/connect/:token', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+module.exports = app;
+
+if (require.main === module) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
