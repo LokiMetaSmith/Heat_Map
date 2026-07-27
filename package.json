@@ -4,6 +4,7 @@
   "description": "Simple heatmap, privacy conscious, and secure by default",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
     "test": "jest tests && playwright test"
   },
   "repository": {
