@@ -67,10 +67,73 @@ npm test
 
 ---
 
+## Deployment (DigitalOcean Droplet or VM)
+
+Because the architecture relies on Docker and Docker Compose, deploying this MVP to a remote Virtual Machine (like a DigitalOcean Droplet, AWS EC2, or Linode) is extremely lightweight.
+
+Here are the step-by-step instructions for deploying to a standard Ubuntu VM:
+
+### 1. Provision the Server
+1. Go to your cloud provider (e.g., DigitalOcean) and create a new Droplet/VM.
+2. Choose **Ubuntu (22.04 LTS or 24.04 LTS)** as the OS.
+3. Select a basic size (e.g., 1GB RAM / 1 vCPU is sufficient for this MVP).
+4. Add your SSH keys for secure access and deploy the server.
+
+### 2. Connect to the Server
+Once the server is running, copy its public IP address and SSH into it from your terminal:
+```bash
+ssh root@YOUR_DROPLET_IP
+```
+
+### 3. Install Docker and Git
+Update the package manager and install Docker and Git:
+```bash
+# Update packages
+apt-get update && apt-get upgrade -y
+
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+# Install Git
+apt-get install git -y
+```
+
+### 4. Clone the Repository
+Clone this repository to the server and navigate into it:
+```bash
+git clone https://github.com/LokiMetaSmith/Heat_Map.git
+cd Heat_Map
+```
+
+### 5. Set Environment Variables
+Before running the application in production, you must set the encryption key. Create a `.env` file in the root directory:
+```bash
+nano .env
+```
+Add the following line, replacing the value with a secure, random 64-character hex string (you can generate one locally via `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`):
+```env
+EMAIL_SECRET_KEY=your_64_character_hex_string_here
+```
+Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`).
+
+### 6. Run the Application
+Use the provided `run.sh` script in container mode to spin up both the database and the backend:
+```bash
+chmod +x run.sh
+./run.sh container
+```
+
+*(Note: For production, you may want to run this detached. You can do this by executing `docker compose up -d --build` directly instead of the script).*
+
+The application is now running! You can access it in your browser by visiting: `http://YOUR_DROPLET_IP:3000`
+
+---
+
 ## Usage Guide
 
 1. **Registering a Location:**
-   Navigate to `http://localhost:3000`. In the "Register Location" panel, enter an address (e.g., "Central Park, NY"), your email, and a privacy radius in meters. When you submit, a fuzzed location will be plotted on the heatmap.
+   Navigate to your local or deployed app URL. In the "Register Location" panel, enter an address (e.g., "Central Park, NY"), your email, and a privacy radius in meters. When you submit, a fuzzed location will be plotted on the heatmap.
 2. **Initiating a Connection:**
    In the "Say Hello" panel, enter your sender email and a search radius. Click anywhere on the map to drop a pin. The backend will find all users whose *fuzzed* coordinates fall within that radius.
 3. **Accepting a Connection:**
