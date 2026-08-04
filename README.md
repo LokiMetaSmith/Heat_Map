@@ -26,7 +26,7 @@ This application relies on three foundational privacy mechanisms:
 ### Prerequisites
 
 You will need the following installed on your machine:
-*   [Docker](https://docs.docker.com/get-docker/) & Docker Compose
+*   [Docker](https://docs.docker.com/get-docker/) & Docker Compose (or Podman & Podman Compose)
 *   [Node.js](https://nodejs.org/) (v18+ recommended) - *Only required if running in baremetal mode.*
 
 ### Running the Application
@@ -63,7 +63,7 @@ To run all tests:
 ```bash
 npm test
 ```
-*Note: You must run `npm install` first if you haven't already.*
+*Note: You must run `npm install` and `npx playwright install` first if you haven't already.*
 
 ---
 
