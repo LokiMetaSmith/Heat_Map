@@ -25,18 +25,31 @@ fi
 case "$MODE" in
     container)
         echo "Starting application in Container mode..."
-        # We use docker compose (v2) or docker-compose (v1)
-        if command -v docker-compose &> /dev/null; then
+        # Check for podman or docker compose
+        if command -v podman-compose &> /dev/null; then
+            podman-compose up --build
+        elif command -v podman &> /dev/null && podman compose version &> /dev/null; then
+            podman compose up --build
+        elif command -v docker-compose &> /dev/null; then
             docker-compose up --build
+        elif command -v docker &> /dev/null && docker compose version &> /dev/null; then
+            docker compose up --build
         else
+            # fallback to docker compose and let it error out if missing
             docker compose up --build
         fi
         ;;
 
     baremetal)
         echo "Starting database in Docker..."
-        if command -v docker-compose &> /dev/null; then
+        if command -v podman-compose &> /dev/null; then
+            podman-compose up -d db
+        elif command -v podman &> /dev/null && podman compose version &> /dev/null; then
+            podman compose up -d db
+        elif command -v docker-compose &> /dev/null; then
             docker-compose up -d db
+        elif command -v docker &> /dev/null && docker compose version &> /dev/null; then
+            docker compose up -d db
         else
             docker compose up -d db
         fi
