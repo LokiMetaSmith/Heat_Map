@@ -1,0 +1,17 @@
+RewriteEngine On
+
+# Protect the php backend source files from public access
+RewriteRule ^(php|tests|composer\.json|composer\.lock|phpunit\.xml) - [F,L]
+
+# Route all /api/* requests to index.php
+RewriteRule ^api/(.*)$ index.php [L,QSA]
+
+# If the request is for a file or directory that actually exists in public/, serve it directly
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+RewriteRule ^(.*)$ public/$1 [L]
+
+# For any other request that is not a file/dir and not /api, serve the SPA entry point
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.html [L]
