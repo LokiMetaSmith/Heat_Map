@@ -17,7 +17,7 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
+  app-node:
     build: .
     ports:
       - "3000:3000"
@@ -27,6 +27,27 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=heatmap
       - PORT=3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app-php:
+    build:
+      context: ./php
+    ports:
+      - "3000:80"
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=heatmap
+      - POSTGRES_PORT=5432
+    volumes:
+      - ./php/src:/var/www/html/src
+      - ./php/vendor:/var/www/html/vendor
+      - ./public:/var/www/html/public
+      - ./php/.htaccess:/var/www/html/.htaccess
+      - ./php/index.php:/var/www/html/index.php
     depends_on:
       db:
         condition: service_healthy
