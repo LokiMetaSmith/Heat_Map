@@ -27,6 +27,10 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=heatmap
       - PORT=3000
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
     depends_on:
       db:
         condition: service_healthy
@@ -42,6 +46,10 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=heatmap
       - POSTGRES_PORT=5432
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
     volumes:
       - ./php/src:/var/www/html/src
       - ./php/vendor:/var/www/html/vendor
