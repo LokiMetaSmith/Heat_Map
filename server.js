@@ -36,6 +36,22 @@ async function initNodemailer() {
     if (process.env.NODE_ENV === 'test') {
         return;
     }
+
+    // Use real SMTP if configured (e.g., SendGrid)
+    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+        transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT || 587,
+            secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
+            },
+        });
+        console.log("SMTP email initialized with host:", process.env.SMTP_HOST);
+        return;
+    }
+
     let testAccount = await nodemailer.createTestAccount();
     transporter = nodemailer.createTransport({
         host: "smtp.ethereal.email",

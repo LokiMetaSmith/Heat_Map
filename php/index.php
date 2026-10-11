@@ -70,29 +70,40 @@ function sendEmail($to, $subject, $text, $html) {
     $mail = new PHPMailer(true);
     try {
         $mail->isSMTP();
-        $mail->Host       = 'smtp.ethereal.email';
-        $mail->SMTPAuth   = true;
-        // In a real app we'd fetch an ethereal account dynamically, but this is a stub
-        // to match node behavior. Since ethereal accounts need to be created, we'll just use a mock account
-        // if no credentials exist. Wait, let's create an ethereal account on the fly if needed, or just hardcode one for dev.
-        // Node.js creates it dynamically on startup. For PHP, we'll try to just pretend it works if we can't create one,
-        // or we can make a curl request to ethereal to create one.
-        // Actually, the requirements are just parity.
-        $ch = curl_init('https://api.nodemailer.com/user');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        $response = curl_exec($ch);
-        curl_close($ch);
 
-        $account = json_decode($response, true);
-        if (!$account) {
-            return false;
+        // Use real SMTP if configured
+        if (!empty($_ENV['SMTP_HOST']) && !empty($_ENV['SMTP_USER']) && !empty($_ENV['SMTP_PASS'])) {
+            $mail->Host       = $_ENV['SMTP_HOST'];
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $_ENV['SMTP_USER'];
+            $mail->Password   = $_ENV['SMTP_PASS'];
+            $port = !empty($_ENV['SMTP_PORT']) ? (int)$_ENV['SMTP_PORT'] : 587;
+            $mail->Port       = $port;
+            if ($port == 465) {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            } else {
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            }
+        } else {
+            // Fallback to Ethereal
+            $mail->Host       = 'smtp.ethereal.email';
+            $mail->SMTPAuth   = true;
+            $ch = curl_init('https://api.nodemailer.com/user');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            $account = json_decode($response, true);
+            if (!$account) {
+                return false;
+            }
+
+            $mail->Username   = $account['user'];
+            $mail->Password   = $account['pass'];
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
         }
-
-        $mail->Username   = $account['user'];
-        $mail->Password   = $account['pass'];
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
 
         $mail->setFrom('noreply@privacyapp.com', 'Privacy App');
         if (is_array($to)) {
