@@ -33,6 +33,11 @@ if [[ "$BACKEND" != "node" && "$BACKEND" != "php" ]]; then
     exit 1
 fi
 
+if ! command -v podman &> /dev/null && ! command -v docker &> /dev/null; then
+    echo "Error: Neither 'docker' nor 'podman' is installed. Please install Docker or Podman to run this application."
+    exit 1
+fi
+
 get_compose_cmd() {
     if command -v podman-compose &> /dev/null; then
         echo "podman-compose"
